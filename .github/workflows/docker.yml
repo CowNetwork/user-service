@@ -27,4 +27,4 @@ jobs:
         uses: docker/build-push-action@v2.4.0
         with:
           push: true
-          tags: cownetwork/user-service:latest,CowNetwork/user-service:${{ steps.get_version.outputs.VERSION }}
+          tags: cownetwork/user-service:latest,cownetwork/user-service:${{ steps.get_version.outputs.VERSION }}
