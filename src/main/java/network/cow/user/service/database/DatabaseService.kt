@@ -1,6 +1,8 @@
 package network.cow.user.service.database
 
+import network.cow.user.service.database.table.PlayerMetadata
 import network.cow.user.service.database.table.Players
+import network.cow.user.service.database.table.UserMetadata
 import network.cow.user.service.database.table.Users
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -23,7 +25,7 @@ object DatabaseService {
 
         transaction (this.database) {
             // Make sure the tables exist.
-            SchemaUtils.create(Users, Players)
+            SchemaUtils.create(Users, Players, UserMetadata, PlayerMetadata)
         }
     }
 

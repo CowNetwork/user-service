@@ -15,5 +15,4 @@ class Player(id: EntityID<UUID>) : UUIDEntity(id) {
     var user by User referencedOn Players.user
     var referenceId by Players.referenceId
     var referenceType by Players.referenceType
-    var username by Players.username
 }
