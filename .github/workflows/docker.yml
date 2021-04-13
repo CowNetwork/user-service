@@ -18,6 +18,13 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      # Extract tag.
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
       # Build and push docker image
       - name: Build and push Docker images
         uses: docker/build-push-action@v2.4.0
+        with:
+          push: true
+          tags: CowNetwork/user-service:latest,CowNetwork/user-service:${{ steps.get_version.outputs.VERSION }}
