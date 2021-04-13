@@ -160,7 +160,10 @@ class UserService : UserServiceGrpc.UserServiceImplBase() {
     }
 
     private fun getMetadata(target: Player) : PlayerMetadata {
-        return PlayerMetadata.find { PlayerMetadataTable.player eq target.id }.firstOrNull() ?: PlayerMetadata.new { player = target }
+        return PlayerMetadata.find { PlayerMetadataTable.player eq target.id }.firstOrNull() ?: PlayerMetadata.new {
+            player = target
+            locale = getMetadata(target.user).locale
+        }
     }
 
     private fun getMetadata(target: User) : UserMetadata {
