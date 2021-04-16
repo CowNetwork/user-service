@@ -20,12 +20,14 @@ object DatabaseService {
         val db = System.getenv("POSTGRES_DB") ?: "postgres"
         val username = System.getenv("POSTGRES_USERNAME") ?: "postgres"
         val password = System.getenv("POSTGRES_PASSWORD") ?: "postgres"
+        val schema = System.getenv("POSTGRES_SCHEMA") ?: "public"
 
-        this.database = Database.connect("jdbc:postgresql://$host/$db", "org.postgresql.Driver", username, password)
+        this.database = Database.connect("jdbc:postgresql://$host/$db?currentSchema=$schema", "org.postgresql.Driver", username, password)
 
         transaction (this.database) {
             // Make sure the tables exist.
-            SchemaUtils.create(Users, Players, UserMetadata, PlayerMetadata)
+            // TODO: move to migrations
+            SchemaUtils.createMissingTablesAndColumns(Users, Players, UserMetadata, PlayerMetadata)
         }
     }
 

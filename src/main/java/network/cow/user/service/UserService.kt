@@ -42,6 +42,8 @@ import network.cow.user.service.database.table.UserMetadata as UserMetadataTable
  */
 class UserService : UserServiceGrpc.UserServiceImplBase() {
 
+    // TODO: input validation / error handling
+
     override fun getPlayer(request: GetPlayerRequest, responseObserver: StreamObserver<GetPlayerResponse>) {
         transaction (DatabaseService.database) {
             responseObserver.onNext(GetPlayerResponse.newBuilder().setPlayer(getGrpcPlayer(request.identifier)).build())
@@ -131,6 +133,8 @@ class UserService : UserServiceGrpc.UserServiceImplBase() {
 
             responseObserver.onNext(UpdatePlayerMetadataResponse.newBuilder().setPlayer(mapGrpcPlayer(player)).build())
             responseObserver.onCompleted()
+
+            // TODO: broadcast player metadata update
         }
     }
 
@@ -149,6 +153,8 @@ class UserService : UserServiceGrpc.UserServiceImplBase() {
 
             responseObserver.onNext(UpdateUserMetadataResponse.newBuilder().setUser(mapGrpcUser(user)).build())
             responseObserver.onCompleted()
+
+            // TODO: broadcast user metadata update
         }
     }
 

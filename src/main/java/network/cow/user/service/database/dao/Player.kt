@@ -11,7 +11,6 @@ import java.util.UUID
  */
 class Player(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<Player>(Players)
-
     var user by User referencedOn Players.user
     var referenceId by Players.referenceId
     var referenceType by Players.referenceType
