@@ -15,10 +15,12 @@ import network.cow.mooapis.user.v1.GetUserPlayersResponse
 import network.cow.mooapis.user.v1.GetUserRequest
 import network.cow.mooapis.user.v1.GetUserResponse
 import network.cow.mooapis.user.v1.PlayerIdentifier
+import network.cow.mooapis.user.v1.PlayerMetadataUpdatedEvent
 import network.cow.mooapis.user.v1.UpdatePlayerMetadataRequest
 import network.cow.mooapis.user.v1.UpdatePlayerMetadataResponse
 import network.cow.mooapis.user.v1.UpdateUserMetadataRequest
 import network.cow.mooapis.user.v1.UpdateUserMetadataResponse
+import network.cow.mooapis.user.v1.UserMetadataUpdatedEvent
 import network.cow.mooapis.user.v1.UserServiceGrpc
 import network.cow.user.service.database.DatabaseService
 import network.cow.user.service.database.dao.Player
@@ -41,6 +43,8 @@ import network.cow.user.service.database.table.UserMetadata as UserMetadataTable
  * @author Benedikt Wüller
  */
 class UserService : UserServiceGrpc.UserServiceImplBase() {
+
+    private val topic = System.getenv("USER_SERVICE_KAFKA_PRODUCER_TOPIC") ?: "cow.global.user"
 
     // TODO: input validation / error handling
 
@@ -134,7 +138,11 @@ class UserService : UserServiceGrpc.UserServiceImplBase() {
             responseObserver.onNext(UpdatePlayerMetadataResponse.newBuilder().setPlayer(mapGrpcPlayer(player)).build())
             responseObserver.onCompleted()
 
-            // TODO: broadcast player metadata update
+            CloudEventProducer.send(topic, PlayerMetadataUpdatedEvent.newBuilder()
+                .setPlayerId(player.id.toString())
+                .setMetadata(mapGrpcMetadata(metadata))
+                .build()
+            )
         }
     }
 
@@ -154,7 +162,11 @@ class UserService : UserServiceGrpc.UserServiceImplBase() {
             responseObserver.onNext(UpdateUserMetadataResponse.newBuilder().setUser(mapGrpcUser(user)).build())
             responseObserver.onCompleted()
 
-            // TODO: broadcast user metadata update
+            CloudEventProducer.send(topic, UserMetadataUpdatedEvent.newBuilder()
+                .setUserId(user.id.toString())
+                .setMetadata(mapGrpcMetadata(metadata))
+                .build()
+            )
         }
     }
 

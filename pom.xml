@@ -36,6 +36,11 @@
             <artifactId>postgresql</artifactId>
             <version>42.2.19</version>
         </dependency>
+        <dependency>
+            <groupId>network.cow.cloudevents</groupId>
+            <artifactId>cloudevents-kafka-kotlin</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
         <!-- SQL Framework -->
         <dependency>

@@ -16,11 +16,11 @@ object DatabaseService {
     val database: Database
 
     init {
-        val host = System.getenv("POSTGRES_HOST") ?: "127.0.0.1:5432"
-        val db = System.getenv("POSTGRES_DB") ?: "postgres"
-        val username = System.getenv("POSTGRES_USERNAME") ?: "postgres"
-        val password = System.getenv("POSTGRES_PASSWORD") ?: "postgres"
-        val schema = System.getenv("POSTGRES_SCHEMA") ?: "public"
+        val host = System.getenv("USER_SERVICE_POSTGRES_HOST") ?: "127.0.0.1:5432"
+        val db = System.getenv("USER_SERVICE_POSTGRES_DB") ?: "postgres"
+        val username = System.getenv("USER_SERVICE_POSTGRES_USERNAME") ?: "postgres"
+        val password = System.getenv("USER_SERVICE_POSTGRES_PASSWORD") ?: "postgres"
+        val schema = System.getenv("USER_SERVICE_POSTGRES_SCHEMA") ?: "public"
 
         this.database = Database.connect("jdbc:postgresql://$host/$db?currentSchema=$schema", "org.postgresql.Driver", username, password)
 
