@@ -28,7 +28,7 @@ class UserServer(private val port: Int) {
 }
 
 fun main() {
-    val port = System.getenv("PORT")?.toInt() ?: 5816
+    val port = System.getenv("USER_SERVICE_PORT")?.toInt() ?: System.getenv("PORT")?.toInt() ?: 5816
     val server = UserServer(port)
     server.start()
     server.blockUntilShutdown()
