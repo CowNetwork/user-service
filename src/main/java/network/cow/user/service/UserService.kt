@@ -4,12 +4,16 @@ import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import network.cow.mooapis.user.v1.GetPlayerByIdRequest
 import network.cow.mooapis.user.v1.GetPlayerByIdResponse
+import network.cow.mooapis.user.v1.GetPlayerByNameRequest
+import network.cow.mooapis.user.v1.GetPlayerByNameResponse
 import network.cow.mooapis.user.v1.GetPlayerRequest
 import network.cow.mooapis.user.v1.GetPlayerResponse
 import network.cow.mooapis.user.v1.GetPlayersByIdRequest
 import network.cow.mooapis.user.v1.GetPlayersByIdResponse
 import network.cow.mooapis.user.v1.GetPlayersRequest
 import network.cow.mooapis.user.v1.GetPlayersResponse
+import network.cow.mooapis.user.v1.GetUserByNameRequest
+import network.cow.mooapis.user.v1.GetUserByNameResponse
 import network.cow.mooapis.user.v1.GetUserPlayersRequest
 import network.cow.mooapis.user.v1.GetUserPlayersResponse
 import network.cow.mooapis.user.v1.GetUserRequest
@@ -30,8 +34,11 @@ import network.cow.user.service.database.dao.UserMetadata
 import network.cow.user.service.database.table.Players
 import network.cow.user.service.database.table.Players.referenceId
 import network.cow.user.service.database.table.Players.referenceType
+import network.cow.user.service.database.table.Users
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import java.util.UUID
 import network.cow.mooapis.user.v1.Metadata as GrpcMetadata
 import network.cow.mooapis.user.v1.Player as GrpcPlayer
@@ -131,6 +138,11 @@ class UserService : UserServiceGrpc.UserServiceImplBase() {
                 return@transaction
             }
 
+            // Remove the username for all players to restore inconsistencies.
+            PlayerMetadataTable.update({ PlayerMetadataTable.username eq request.metadata.username }) {
+                it[username] = null
+            }
+
             val metadata = getMetadata(player)
             metadata.locale = request.metadata.locale
             metadata.username = request.metadata.username
@@ -155,6 +167,11 @@ class UserService : UserServiceGrpc.UserServiceImplBase() {
                 return@transaction
             }
 
+            // Remove the username for all players to restore inconsistencies.
+            UserMetadataTable.update({ UserMetadataTable.username eq request.metadata.username }) {
+                it[username] = null
+            }
+
             val metadata = getMetadata(user)
             metadata.locale = request.metadata.locale
             metadata.username = request.metadata.username
@@ -167,6 +184,40 @@ class UserService : UserServiceGrpc.UserServiceImplBase() {
                 .setMetadata(mapGrpcMetadata(metadata))
                 .build()
             )
+        }
+    }
+
+    override fun getPlayerByName(request: GetPlayerByNameRequest, responseObserver: StreamObserver<GetPlayerByNameResponse>) {
+        transaction (DatabaseService.database) {
+            val metadata = (PlayerMetadataTable leftJoin Players)
+                .slice(Players.id)
+                .select { (PlayerMetadataTable.username eq request.name) and (PlayerMetadataTable.player eq Players.id) }
+                .firstOrNull()
+
+            if (metadata == null) {
+                responseObserver.onError(Status.NOT_FOUND.withDescription("The player does not exist.").asRuntimeException())
+                return@transaction
+            }
+
+            responseObserver.onNext(GetPlayerByNameResponse.newBuilder().setPlayer(mapGrpcPlayer(Player[metadata[Players.id]])).build())
+            responseObserver.onCompleted()
+        }
+    }
+
+    override fun getUserByName(request: GetUserByNameRequest, responseObserver: StreamObserver<GetUserByNameResponse>) {
+        transaction (DatabaseService.database) {
+            val metadata = (UserMetadataTable leftJoin Users)
+                .slice(Users.id)
+                .select { (UserMetadataTable.username eq request.name) and (UserMetadataTable.user eq Users.id) }
+                .firstOrNull()
+
+            if (metadata == null) {
+                responseObserver.onError(Status.NOT_FOUND.withDescription("The user does not exist.").asRuntimeException())
+                return@transaction
+            }
+
+            responseObserver.onNext(GetUserByNameResponse.newBuilder().setUser(mapGrpcUser(User[metadata[Users.id]])).build())
+            responseObserver.onCompleted()
         }
     }
 
