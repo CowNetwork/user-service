@@ -6,7 +6,7 @@ Account management service using gRPC.
 
 | Variable | Default Value | Description |
 | -------- | ------------- | ----------- |
-| `USER_SERVICE_PORT` | `5816` | The port this server listens to. |
+| `PORT` / `USER_SERVICE_PORT` | `5816` | The port this server listens to. |
 | `USER_SERVICE_POSTGRES_HOST` | `127.0.0.1:5432` | The host of the postgres database. |
 | `USER_SERVICE_POSTGRES_DB` | `postgres` | The postgres database used. |
 | `USER_SERVICE_POSTGRES_SCHEMA` | `public` | The postgres database schema used. |
